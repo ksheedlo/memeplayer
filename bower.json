@@ -1,0 +1,28 @@
+{
+  "name": "MemePlayer.js",
+  "version": "0.1.0",
+  "authors": [
+    "Ken Sheedlo <ovrkenthousand@gmail.com>"
+  ],
+  "description": "Load and edit image macros in a canvas",
+  "main": "src/MemePlayer.js",
+  "keywords": [
+    "meme",
+    "gif",
+    "image"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "readwrite-gif": "~0.1.0"
+  },
+  "devDependencies": {
+    "bootstrap": "~3.3.0"
+  }
+}

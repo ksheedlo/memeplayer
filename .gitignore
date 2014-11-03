@@ -1,0 +1,7 @@
+node_modules/
+dist/
+docs/*.html
+docs/components/
+docs/scripts/
+docs/styles/
+docs/img/

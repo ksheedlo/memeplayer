@@ -1,0 +1,106 @@
+<?js
+var data = obj;
+var self = this;
+?>
+
+
+<?js if (data.kind === 'package' && (data.name ||data.version)) { ?>
+    <h3><?js= data.name ?> <?js= data.version ?></h3>
+<?js } ?>
+
+<?js if (data.readme) { ?>
+    <section class="readme-section">
+        <article><?js= data.readme ?></article>
+    </section>
+    <h2>Live Example</h2>
+    <canvas id="example-player"></canvas>
+    <form class="form-horizontal" style="margin-top: 10px;">
+      <div class="control-group">
+        <label class="control-label">Template</label>
+        <div class="controls">
+          <select id="example-select" class="form-control">
+            <option>Bad Luck Brian</option>
+            <option>Philosoraptor</option>
+            <option>Minions</option>
+          </select>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Top Text</label>
+        <div class="controls">
+          <input type="text" class="form-control" id="example-top">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Middle Text</label>
+        <div class="controls">
+          <input type="text" class="form-control" id="example-middle">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Bottom Text</label>
+        <div class="controls">
+          <input type="text" class="form-control" id="example-bottom">
+        </div>
+      </div>
+    </form>
+    <script src="components/readwrite-gif/dist/GIF.min.js"></script>
+    <script src="player/MemePlayer.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var templates = {
+          'Bad Luck Brian': {
+            url: '/assets/badluckbrian.jpg',
+            width: 475,
+            height: 562
+          },
+          'Philosoraptor': {
+            url: '/assets/philosoraptor.jpeg',
+            width: 500,
+            height: 500
+          },
+          'Minions': {
+            url: '/assets/despicable-me-minions.gif',
+            width: 500,
+            height: 226
+          }
+        };
+
+        var selectedTemplate = templates['Bad Luck Brian'];
+        var player = new MemePlayer(document.getElementById('example-player'),
+          selectedTemplate.width, selectedTemplate.height);
+
+        var text = {
+          top: { value: '', align: 'center' },
+          middle: { value: '', align: 'center' },
+          bottom: { value: '', align: 'center' },
+        };
+
+        function reloadMemePlayer () {
+          player.setWidth(selectedTemplate.width);
+          player.setHeight(selectedTemplate.height);
+          player.loadTemplate(selectedTemplate.url, function () {});
+        }
+
+        $('#example-select').change(function () {
+          selectedTemplate = templates[$('#example-select option:selected').text()];
+          reloadMemePlayer();
+        });
+
+        $('#example-top').keyup(function () {
+          text.top.value = $(this).val();
+          player.setText(text);
+        });
+        $('#example-middle').keyup(function () {
+          text.middle.value = $(this).val();
+          player.setText(text);
+        });
+        $('#example-bottom').keyup(function () {
+          text.bottom.value = $(this).val();
+          player.setText(text);
+        });
+        reloadMemePlayer();
+      });
+    </script>
+<?js } ?>
+

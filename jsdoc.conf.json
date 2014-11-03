@@ -1,0 +1,26 @@
+{
+  "tags": {
+    "allowUnknownTags" : true
+  },
+  "plugins": ["plugins/markdown"],
+  "templates": {
+    "cleverLinks"           : false,
+    "monospaceLinks"        : false,
+    "dateFormat"            : "ddd MMM Do YYYY",
+    "outputSourceFiles"     : true,
+    "outputSourcePath"      : true,
+    "systemName"            : "MemePlayer.js",
+    "footer"                : "",
+    "copyright"             : "Copyright © 2014 Ken Sheedlo",
+    "navType"               : "vertical",
+    "theme"                 : "journal",
+    "linenums"              : true,
+    "collapseSymbols"       : false,
+    "inverseNav"            : true,
+    "highlightTutorialCode" : true
+  },
+  "markdown"  : {
+    "parser"   : "gfm",
+    "hardwrap" : true
+  }
+}
