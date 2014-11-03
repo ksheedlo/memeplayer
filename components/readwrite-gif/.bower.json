@@ -1,0 +1,33 @@
+{
+  "name": "readwrite-gif",
+  "version": "0.1.0",
+  "homepage": "https://github.com/ksheedlo/readwrite-gif",
+  "authors": [
+    "Ken Sheedlo <ovrkenthousand@gmail.com>"
+  ],
+  "description": "Read and write GIFs",
+  "main": "src/GIFEncoder.js",
+  "keywords": [
+    "gif",
+    "encoding",
+    "decoding",
+    "canvas"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "0.1.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.1.0",
+    "commit": "979e67f67b40f2160e3e6c7f61e3e5467cc324dc"
+  },
+  "_source": "git://github.com/ksheedlo/readwrite-gif.git",
+  "_target": "~0.1.0",
+  "_originalSource": "readwrite-gif"
+}
