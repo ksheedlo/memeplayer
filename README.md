@@ -13,7 +13,7 @@ You'll also need to include the [readwrite-gif](https://github.com/ksheedlo/read
 library in your page. Using this
 with [jsdom](https://github.com/tmpvar/jsdom) and
 [node-canvas](https://github.com/Automattic/node-canvas) is in the roadmap, so
-if it makes sense I'll put it on NPM once I have a working example.
+sit tight and don't try to use the NPM module just yet.
 
 ### Stuff It Can Do
 
