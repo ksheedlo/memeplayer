@@ -1,6 +1,6 @@
 {
   "name": "MemePlayer.js",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Load and edit image macros in a canvas",
   "main": "gulpfile.js",
   "scripts": {
