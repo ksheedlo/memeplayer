@@ -62,8 +62,20 @@ module.exports = function (grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.config('uglify', {
+    options: {
+      maxLineLen: 500
+    },
+    dist: {
+      src: ['dist/MemePlayer.js'],
+      dest: 'dist/MemePlayer.min.js'
+    }
+  });
+
   grunt.registerTask('default', [
     'concat',
+    'uglify:dist',
     'jsdoc'
   ]);
 };
