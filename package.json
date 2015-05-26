@@ -2,7 +2,8 @@
   "name": "memeplayer.js",
   "version": "1.0.0",
   "description": "Load and edit image macros in a canvas",
-  "main": "gulpfile.js",
+  "main": "./index.js",
+  "browser": "./browser.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,10 +23,16 @@
   },
   "homepage": "https://github.com/ksheedlo/MemePlayer.js",
   "devDependencies": {
-    "grunt-contrib-concat": "^0.5.0",
-    "grunt": "^0.4.5",
-    "grunt-contrib-jshint": "^0.10.0",
-    "grunt-jsdoc": "^0.5.7",
-    "grunt-contrib-uglify": "^0.6.0"
+    "grunt": "0.4.5",
+    "grunt-browserify": "3.8.0",
+    "grunt-contrib-clean": "0.6.0",
+    "grunt-contrib-jshint": "0.10.0",
+    "grunt-contrib-uglify": "0.6.0",
+    "grunt-jsdoc": "0.5.7"
+  },
+  "dependencies": {
+    "es6-promise": "2.1.1",
+    "isomorphic-fetch": "2.1.0",
+    "readwrite-gif": "0.3.1"
   }
 }

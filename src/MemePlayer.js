@@ -1,5 +1,7 @@
 'use strict';
 
+var GIF = require('readwrite-gif');
+
 function isGIF(url) {
   return /\.gif$/i.test(url);
 }
@@ -24,86 +26,73 @@ function dataURLtoBase64(dataUrl) {
   return match[2];
 }
 
-function getHttpAsArrayBuffer(url, cb) {
-  var xhr = new XMLHttpRequest(),
-    requestError;
-
-  xhr.open('GET', url, true);
-  xhr.responseType = 'arraybuffer';
-
-  requestError = function () {
-    cb(new Error('[MemePlayer:network] A network error occurred.'));
-  };
-
-  xhr.onload = function () {
-    var response = xhr.response;
-    if (xhr.status >= 400) {
-      cb(new Error('[MemePlayer:http] HTTP request returned ' + xhr.status), response);
-    } else {
-      cb(null, response);
+function getHttpAsArrayBuffer(url) {
+  return fetch(url).then(function (response) {
+    if (response.status >= 400) {
+      return Promise.reject(
+        new Error('[MemePlayer:http] HTTP request returned ' + response.status));
     }
-  };
-
-  xhr.onerror = xhr.onabort = requestError;
-  xhr.send();
+    return response.arrayBuffer();
+  });
 }
 
-function createFrames(ctx, url, width, height, cb) {
-  var img;
+function createFrames(ctx, url, width, height) {
+  var img, promise;
 
   if (isGIF(url)) {
-    getHttpAsArrayBuffer(url, function (err, data) {
-      if (err) {
-        cb(err);
-      } else {
-        var decoder = new GIF.Decoder(new Uint8Array(data)),
-          gif = { frames: [] },
-          nFrames = decoder.numFrames(),
-          imageData,
-          lastImageRawData,
-          frameInfo;
+    return getHttpAsArrayBuffer(url).then(function (data) {
+      var decoder = new GIF.Decoder(new Uint8Array(data)),
+        gif = { frames: [] },
+        nFrames = decoder.numFrames(),
+        imageData,
+        lastImageRawData,
+        frameInfo;
 
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, width, height);
-        if (nFrames > 0) {
-          imageData = ctx.createImageData(decoder.width, decoder.height);
-          decoder.decodeAndBlitFrameRGBA(0, imageData.data);
-          frameInfo = decoder.frameInfo(0);
-          gif.frames.push({
-            delay: frameInfo.delay,
-            frame: imageData
-          });
-          lastImageRawData = imageData.data;
-        }
-        for (var i = 1; i < nFrames; i++) {
-          imageData = ctx.createImageData(decoder.width, decoder.height);
-          for (var j = 0; j < imageData.data.length; j++) {
-            imageData.data[j] = lastImageRawData[j];
-          }
-          decoder.decodeAndBlitFrameRGBA(i, imageData.data);
-          frameInfo = decoder.frameInfo(i);
-          gif.frames.push({
-            delay: frameInfo.delay,
-            frame: imageData
-          });
-          lastImageRawData = imageData.data;
-        }
-        cb(null, gif);
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, width, height);
+      if (nFrames > 0) {
+        imageData = ctx.createImageData(decoder.width, decoder.height);
+        decoder.decodeAndBlitFrameRGBA(0, imageData.data);
+        frameInfo = decoder.frameInfo(0);
+        gif.frames.push({
+          delay: frameInfo.delay,
+          frame: imageData
+        });
+        lastImageRawData = imageData.data;
       }
+      for (var i = 1; i < nFrames; i++) {
+        imageData = ctx.createImageData(decoder.width, decoder.height);
+        for (var j = 0; j < imageData.data.length; j++) {
+          imageData.data[j] = lastImageRawData[j];
+        }
+        decoder.decodeAndBlitFrameRGBA(i, imageData.data);
+        frameInfo = decoder.frameInfo(i);
+        gif.frames.push({
+          delay: frameInfo.delay,
+          frame: imageData
+        });
+        lastImageRawData = imageData.data;
+      }
+      return gif;
     });
   } else {
     img = new Image();
     img.crossOrigin = 'anonymous';
-    img.addEventListener('load', function () {
-      var imageData;
+    promise = new Promise(function (resolve) {
+      img.addEventListener('load', function () {
+        var imageData;
 
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, width, height);
-      ctx.drawImage(img, 0, 0);
-      imageData = ctx.getImageData(0, 0, width, height);
-      cb(null, { frames: [{ frame: imageData }] });
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0);
+        imageData = ctx.getImageData(0, 0, width, height);
+        resolve({
+          frames: [{ frame: imageData }]
+        });
+      });
     });
     img.src = url;
+    return promise;
   }
 }
 
@@ -212,11 +201,10 @@ function renderText (ctx, text, img) {
   renderLine(text.bottom.value, text.bottom.align, 'bottom');
 }
 
-function createContentData(canvas, ctx, text, image, cb) {
+function createContentData(canvas, ctx, text, image) {
   var encoder,
     frame,
-    frameIndex,
-    renderNextFrame;
+    frameIndex;
 
   if (image.frames.length > 1) {
     // animated GIF
@@ -224,27 +212,30 @@ function createContentData(canvas, ctx, text, image, cb) {
     encoder = new GIF.Encoder();
     encoder.setRepeat(0);
     encoder.start();
-    renderNextFrame = function () {
-      frame = image.frames[frameIndex++];
-      encoder.setDelay(frame.delay * 10); // 1/100ths sec -> ms
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, frame.frame.width, frame.frame.height);
-      ctx.putImageData(frame.frame, 0, 0);
-      renderText(ctx, text, frame.frame);
-      encoder.addFrame(ctx);
+    return new Promise(function (resolve) {
+      var renderNextFrame = function () {
+        frame = image.frames[frameIndex++];
+        encoder.setDelay(frame.delay * 10); // 1/100ths sec -> ms
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, frame.frame.width, frame.frame.height);
+        ctx.putImageData(frame.frame, 0, 0);
+        renderText(ctx, text, frame.frame);
+        encoder.addFrame(ctx);
 
-      if (frameIndex === image.frames.length) {
-        encoder.finish();
-        cb(null, {
-          data: btoa(encoder.stream().getData()),
-          contentType: 'image/gif'
-        });
-      } else {
-        // perf: don't bog down the event loop.
-        setTimeout(renderNextFrame, 0);
-      }
-    };
-    renderNextFrame();
+        if (frameIndex === image.frames.length) {
+          encoder.finish();
+          resolve({
+            data: btoa(encoder.stream().getData()),
+            contentType: 'image/gif'
+          });
+        } else {
+          // perf: don't bog down the event loop.
+          setTimeout(renderNextFrame, 0);
+        }
+      };
+
+      renderNextFrame();
+    });
   } else {
     // JPG
     frame = image.frames[0];
@@ -252,7 +243,7 @@ function createContentData(canvas, ctx, text, image, cb) {
     ctx.fillRect(0, 0, frame.frame.width, frame.frame.height);
     ctx.putImageData(frame.frame, 0, 0);
     renderText(ctx, text, frame.frame);
-    cb(null, {
+    return Promise.resolve({
       data: dataURLtoBase64(canvas.toDataURL('image/jpeg')),
       contentType: 'image/jpeg'
     });
@@ -316,30 +307,18 @@ MemePlayer.prototype.setHeight = function (height) {
  *
  * @param {!string} url The URL of the image to display. JPG, PNG and GIF are
  *    supported image formats.
- * @param {MemePlayer~loadTemplateCallback} cb The callback that handles the
- *    result.
+ * @returns {Promise<Template>}
  */
-MemePlayer.prototype.loadTemplate = function (url, cb) {
-  createFrames(this.$$ctx, url, this.$$width, this.$$height, function (err, image) {
-    if (err) {
-      cb(err);
-    } else {
-      this.$$image = image;
-      this.$$frameIndex = 0;
-      this.$$redraw();
-      cb();
-    }
+MemePlayer.prototype.loadTemplate = function (url) {
+  return createFrames(this.$$ctx, url, this.$$width, this.$$height).then(
+    function (image) {
+
+    this.$$image = image;
+    this.$$frameIndex = 0;
+    this.$$redraw();
+    return image;
   }.bind(this));
 };
-
-/**
- * @callback MemePlayer~loadTemplateCallback
- * @description
- * This callback handles the result from loading a template URL.
- *
- * @param {?Error} err If not null, the error that occurred trying to load
- *    the template.
- */
 
 /**
  * @private
@@ -421,15 +400,10 @@ MemePlayer.prototype.setText = function (text) {
  * @description
  * Exports the content of the player to a data URL.
  *
- * @param {MemePlayer~exportCallback} cb A callback for the result
+ * @returns {Promise<MemeData>}
  */
-MemePlayer.prototype.export = function (cb) {
-  createContentData(this.$$canvas, this.$$ctx, this.$$text, this.$$image, cb);
+MemePlayer.prototype.export = function () {
+  return createContentData(this.$$canvas, this.$$ctx, this.$$text, this.$$image);
 };
 
-/**
- * @callback MemePlayer~exportCallback
- * @param {?Error} err If not null, the error that occurred trying to export the
- *    content.
- * @param {MemeData} result The exported contents of this MemePlayer.
- */
+module.exports = MemePlayer;

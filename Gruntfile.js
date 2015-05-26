@@ -1,30 +1,25 @@
 'use strict';
 
 module.exports = function (grunt) {
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.config('concat', {
-    options: {
-      banner: "+function () {\n'use strict';\n",
-      process: function (src) {
-        return src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');
-      },
-      footer: "window.MemePlayer = MemePlayer;\n}();"
-    },
+  grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-jsdoc');
+
+  grunt.initConfig({});
+
+  grunt.config('browserify', {
     dist: {
-      src: [
-        'src/MemePlayer.js'
-      ],
+      src: ['./bower-build.js'],
       dest: 'dist/MemePlayer.js'
-    },
-    docs: {
-      src: [
-        'src/MemePlayer.js'
-      ],
-      dest: 'docs/player/MemePlayer.js'
     }
   });
 
-  grunt.loadNpmTasks('grunt-jsdoc');
+  grunt.config('clean', {
+    build: ['dist/']
+  });
+
   grunt.config('jsdoc', {
     dist: {
       src: ['src/MemePlayer.js', 'README.md'],
@@ -37,7 +32,6 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.config('jshint', {
     options: {
       bitwise: true,
@@ -51,8 +45,9 @@ module.exports = function (grunt) {
       trailing: true,
       globalstrict: true,
       browser: true,
+      node: true,
       globals: {
-        GIF: false
+        fetch: false
       }
     },
     main: {
@@ -62,7 +57,6 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.config('uglify', {
     options: {
       maxLineLen: 500
@@ -74,7 +68,8 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('default', [
-    'concat',
+    'clean',
+    'browserify',
     'uglify:dist',
     'jsdoc'
   ]);
