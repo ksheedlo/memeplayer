@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "es6-promise": "2.1.1",
+    "isomorphic-base64": "1.0.1",
     "isomorphic-fetch": "2.1.0",
     "readwrite-gif": "0.3.1"
   }

@@ -10,7 +10,13 @@ var MemePlayer = require('./src/MemePlayer');
 
 module.exports = MemePlayer;
 
-},{"./src/MemePlayer":8}],3:[function(require,module,exports){
+},{"./src/MemePlayer":9}],3:[function(require,module,exports){
+'use strict';
+
+exports.atob = self.atob.bind(self);
+exports.btoa = self.btoa.bind(self);
+
+},{}],4:[function(require,module,exports){
 'use strict';
 
 var Encoder = require('./src/GIFEncoder.js'),
@@ -21,7 +27,7 @@ module.exports = {
   Decoder: Decoder
 };
 
-},{"./src/GIFEncoder.js":4,"./src/GifReader.js":5}],4:[function(require,module,exports){
+},{"./src/GIFEncoder.js":5,"./src/GifReader.js":6}],5:[function(require,module,exports){
 /**
  * This class lets you encode animated GIF files
  * Base class :  http://www.java2s.com/Code/Java/2D-Graphics-GUI/AnimatedGifEncoder.htm
@@ -549,7 +555,7 @@ var GIFEncoder = function() {
 
 module.exports = GIFEncoder;
 
-},{"./LZWEncoder":6,"./NeuQuant":7}],5:[function(require,module,exports){
+},{"./LZWEncoder":7,"./NeuQuant":8}],6:[function(require,module,exports){
 // (c) Dean McNamee <dean@gmail.com>, 2013.
 //
 // https://github.com/deanm/omggif
@@ -1006,7 +1012,7 @@ function GifReaderLZWOutputIndexStream(code_stream, p, output, output_length) {
 
 module.exports = GifReader;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /**
  * This class handles LZW encoding
  * Adapted from Jef Poskanzer's Java port by way of J. M. G. Elliott.
@@ -1287,7 +1293,7 @@ var LZWEncoder = function() {
 
 module.exports = LZWEncoder;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /*
  * NeuQuant Neural-Net Quantization Algorithm
  * ------------------------------------------
@@ -1820,10 +1826,11 @@ var NeuQuant = function() {
 
 module.exports = NeuQuant;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
-var GIF = require('readwrite-gif');
+var GIF = require('readwrite-gif'),
+  btoa = require('isomorphic-base64').btoa;
 
 function isGIF(url) {
   return /\.gif$/i.test(url);
@@ -1859,7 +1866,21 @@ function getHttpAsArrayBuffer(url) {
   });
 }
 
-function createFrames(ctx, url, width, height) {
+function createImageInstance(canvasInstance) {
+  // Hack: We want to use a native browser Image if we are in a browser.
+  //       But if we are using node-canvas, we need to use it's Image
+  //       implementation, ideally without require'ing it because that
+  //       would make working with browserify difficult.
+  if (typeof Image !== 'undefined') {
+    // Browsers.
+    return new Image();
+  } else {
+    // node-canvas.
+    return new canvasInstance.constructor.Image();
+  }
+}
+
+function createFrames(player, url) {
   var img, promise;
 
   if (isGIF(url)) {
@@ -1871,10 +1892,10 @@ function createFrames(ctx, url, width, height) {
         lastImageRawData,
         frameInfo;
 
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, width, height);
+      player.$$ctx.fillStyle = "white";
+      player.$$ctx.fillRect(0, 0, player.$$width, player.$$height);
       if (nFrames > 0) {
-        imageData = ctx.createImageData(decoder.width, decoder.height);
+        imageData = player.$$ctx.createImageData(decoder.width, decoder.height);
         decoder.decodeAndBlitFrameRGBA(0, imageData.data);
         frameInfo = decoder.frameInfo(0);
         gif.frames.push({
@@ -1884,7 +1905,7 @@ function createFrames(ctx, url, width, height) {
         lastImageRawData = imageData.data;
       }
       for (var i = 1; i < nFrames; i++) {
-        imageData = ctx.createImageData(decoder.width, decoder.height);
+        imageData = player.$$ctx.createImageData(decoder.width, decoder.height);
         for (var j = 0; j < imageData.data.length; j++) {
           imageData.data[j] = lastImageRawData[j];
         }
@@ -1899,16 +1920,16 @@ function createFrames(ctx, url, width, height) {
       return gif;
     });
   } else {
-    img = new Image();
+    img = createImageInstance(player.$$canvas);
     img.crossOrigin = 'anonymous';
     promise = new Promise(function (resolve) {
       img.addEventListener('load', function () {
         var imageData;
 
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, width, height);
-        ctx.drawImage(img, 0, 0);
-        imageData = ctx.getImageData(0, 0, width, height);
+        player.$$ctx.fillStyle = "white";
+        player.$$ctx.fillRect(0, 0, player.$$width, player.$$height);
+        player.$$ctx.drawImage(img, 0, 0);
+        imageData = player.$$ctx.getImageData(0, 0, player.$$width, player.$$height);
         resolve({
           frames: [{ frame: imageData }]
         });
@@ -2133,9 +2154,7 @@ MemePlayer.prototype.setHeight = function (height) {
  * @returns {Promise<Template>}
  */
 MemePlayer.prototype.loadTemplate = function (url) {
-  return createFrames(this.$$ctx, url, this.$$width, this.$$height).then(
-    function (image) {
-
+  return createFrames(this, url).then(function (image) {
     this.$$image = image;
     this.$$frameIndex = 0;
     this.$$redraw();
@@ -2231,4 +2250,4 @@ MemePlayer.prototype.export = function () {
 
 module.exports = MemePlayer;
 
-},{"readwrite-gif":3}]},{},[1]);
+},{"isomorphic-base64":3,"readwrite-gif":4}]},{},[1]);
