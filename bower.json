@@ -1,5 +1,5 @@
 {
-  "name": "MemePlayer.js",
+  "name": "memeplayer",
   "version": "1.0.1",
   "authors": [
     "Ken Sheedlo <ovrkenthousand@gmail.com>"
@@ -20,9 +20,9 @@
     "tests"
   ],
   "dependencies": {
-    "readwrite-gif": "~0.1.0"
+    "readwrite-gif": "0.3.1"
   },
   "devDependencies": {
-    "bootstrap": "~3.3.0"
+    "bootstrap": "3.3.0"
   }
 }

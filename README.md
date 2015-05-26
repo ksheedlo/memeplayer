@@ -1,12 +1,12 @@
-# MemePlayer.js
-MemePlayer.js turns a regular canvas into a full featured meme editor.
+# memeplayer
+**memeplayer** turns a regular canvas into a full featured meme editor.
 
 ### Installation
 
 **Bower**
 
 ```
-$ bower install memeplayer.js
+$ bower install memeplayer
 ```
 
 You will need polyfills for HTML5 Fetch and ES6 Promises. I recommend Github's [fetch polyfill](https://github.com/github/fetch) and Jake Archibald's [promise polyfill](https://github.com/jakearchibald/es6-promise). Additionally, if you need to run in IE9, you need a polyfill for [WindowBase64](https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64) for converting images to and from base 64.
@@ -14,7 +14,7 @@ You will need polyfills for HTML5 Fetch and ES6 Promises. I recommend Github's [
 **Browserify**
 
 ```
-$ npm install memeplayer.js
+$ npm install memeplayer
 ```
 
 Like with the Bower installation, you'll need to polyfill Fetch and Promises before you can start using MemePlayer, as well as WindowBase64 if IE9 support is required.
@@ -44,4 +44,4 @@ var player = new MemePlayer(new Canvas(500, 500), 500, 500);
 - Works with JPG, PNG and animated GIF (!)
 
 For all the gritty details, refer to the
-[API docs](http://ksheedlo.github.io/MemePlayer.js/MemePlayer.html).
+[API docs](http://ksheedlo.github.io/memeplayer/MemePlayer.html).

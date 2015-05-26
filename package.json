@@ -1,5 +1,5 @@
 {
-  "name": "memeplayer.js",
+  "name": "memeplayer",
   "version": "1.0.0",
   "description": "Load and edit image macros in a canvas",
   "main": "./index.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ksheedlo/MemePlayer.js.git"
+    "url": "https://github.com/ksheedlo/memeplayer.git"
   },
   "keywords": [
     "meme",
@@ -19,9 +19,9 @@
   "author": "Ken Sheedlo <ovrkenthousand@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ksheedlo/MemePlayer.js/issues"
+    "url": "https://github.com/ksheedlo/memeplayer/issues"
   },
-  "homepage": "https://github.com/ksheedlo/MemePlayer.js",
+  "homepage": "https://github.com/ksheedlo/memeplayer",
   "devDependencies": {
     "grunt": "0.4.5",
     "grunt-browserify": "3.8.0",
