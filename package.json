@@ -1,6 +1,6 @@
 {
   "name": "memeplayer",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Load and edit image macros in a canvas",
   "main": "./index.js",
   "browser": "./browser.js",
